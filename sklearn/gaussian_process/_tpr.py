@@ -290,8 +290,8 @@ class TProcessRegressor(GaussianProcessRegressor):
         """
         if [return_std, return_cov, return_tShape, return_tShapeMatrix].count(True) > 1:
             raise RuntimeError(
-                "At most one of return_std, return_cov, return_tShape or \
-                return_tShapeMatrix can be requested."
+                "At most one of return_std, return_cov, return_tShape or "
+                + "return_tShapeMatrix can be requested."
             )
 
         ### Spread may be either std or cov ###

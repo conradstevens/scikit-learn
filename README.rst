@@ -1,5 +1,58 @@
 .. -*- mode: rst -*-
 
+Scikit-Learn T-Processes
+========
+
+Merge Request
+--------
+This is a contribution adding T-Processes (TP)s to the Machine Learning Library
+`Scikit leran <https://scikit-learn.org/stable/>`_. A request has been made to merge
+`main-tprocess <https://github.com/conradstevens/scikit-learn/tree/main-to-merge>`_ into scikit-learn's
+`main <https://github.com/scikit-learn/scikit-learn>`_ branch.
+
+The changes and tests can found in: `/scikit-learn/sklearn/gaussian_process/ <https://github.com/conradstevens/scikit-learn/tree/main-to-merge/sklearn/gaussian_process>`_
+
+T Processes
+--------
+T-Processes also known as Student-T-Processes, are a stochastic process used for Bayesian Regression. They derived from
+the popular Gaussian Processes (GP), by placing a conjugate prior over the covariance matrix. See [SW2014][TW2018] and
+[RW2006] for more detail.
+
+There are two primary advantages to using TPs over GPs.
+
+- They will scale the covariance matrix to match the data using Bayesian methods
+- The marginal distributions of the response variable is a T distribution rather than a Gaussian distribution. This makes the stochastic process more robust to outliers.
+
+The below compare the posterior of GP and TP using the same kernel function, without learning the kernel parameters. It
+can be seen that the TP scales the kernel function using Bayesian methods to match the data.
+
+.. list-table::
+   :widths: 50 50
+   :header-rows: 0
+
+   * - .. image:: https://raw.githubusercontent.com/conradstevens/scikit-learn/dev-tpocess/sklearn/gaussian_process/media/gp_plot.png
+            :width: 100%
+
+     - .. image:: https://raw.githubusercontent.com/conradstevens/scikit-learn/dev-tpocess/sklearn/gaussian_process/media/tp_plot.png
+            :width: 100%
+
+The below samples 40 regression functions from a GP and TP using the same RBF Kernel. It can be seen that TPs are more
+robust to outliers as sampled functions stray from the mean more widely.
+
+.. list-table::
+   :widths: 50 50
+   :header-rows: 0
+
+   * - .. image:: https://raw.githubusercontent.com/conradstevens/scikit-learn/dev-tpocess/sklearn/gaussian_process/media/gp_samples.png
+            :width: 100%
+
+     - .. image:: https://raw.githubusercontent.com/conradstevens/scikit-learn/dev-tpocess/sklearn/gaussian_process/media/tp_samples.png
+            :width: 100%
+
+The below is from the main Scikit-Learn repository.
+
+=======
+
 |Azure| |CirrusCI| |Codecov| |CircleCI| |Nightly wheels| |Black| |PythonVersion| |PyPi| |DOI| |Benchmark|
 
 .. |Azure| image:: https://dev.azure.com/scikit-learn/scikit-learn/_apis/build/status/scikit-learn.scikit-learn?branchName=main
