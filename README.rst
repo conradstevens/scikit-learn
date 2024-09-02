@@ -13,8 +13,10 @@ This is a contribution adding T-Processes (TP)s to the Machine Learning Library
 T Processes
 --------
 T-Processes also known as Student-T-Processes, are a stochastic process used for Bayesian Regression. They derived from
-the popular Gaussian Processes (GP), by placing a conjugate prior over the covariance matrix. See [SW2014][TW2018] and
-[RW2006] for more detail.
+the popular Gaussian Processes (GP), by placing a conjugate prior over the covariance matrix. See
+`[SW2014] <https://arxiv.org/abs/1801.06147>`_
+`[TW2018] <https://arxiv.org/abs/1402.4306>`_ and
+`[RW2006] <https://gaussianprocess.org/gpml/chapters/RW.pdf>`_ for more detail.
 
 There are two primary advantages to using TPs over GPs.
 
