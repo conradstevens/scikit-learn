@@ -35,7 +35,7 @@ vec_norm_conf_gp = np.vectorize(norm_conf_gp)
 vec_norm_conf_tp = np.vectorize(norm_conf_tp)
 
 
-def target_generator(X, add_noise=False):
+def ground_truth_func(X, add_noise=False):
     """Generates function to plot"""
     target = 0.5 * np.sin(X)
     if add_noise:
@@ -60,19 +60,15 @@ def plot_sin_comparison():
 
     n = 40
     X = np.linspace(-30, 30, num=500).reshape(-1, 1)
-    y = target_generator(X, add_noise=False)
+    y = ground_truth_func(X, add_noise=False)
     X_train = np.linspace(-10, 10, num=n) + 0.1 * np.array(
         [norm.rvs() for _ in range(n)]
     )
     X_train = X_train.reshape(-1, 1)
-    y_train = target_generator(X_train, add_noise=False)
+    y_train = ground_truth_func(X_train, add_noise=False)
 
-    gpr = GaussianProcessRegressor(kernel=kernel, alpha=0.0001).fit(
-        X_train, y_train
-    )  # , optimizer=None)
-    tpr = TProcessRegressor(kernel=kernel, v=3, alpha=0.0001).fit(
-        X_train, y_train
-    )  # , optimizer=None)
+    gpr = GaussianProcessRegressor(kernel=kernel, alpha=0.0001).fit(X_train, y_train)
+    tpr = TProcessRegressor(kernel=kernel, v=3, alpha=0.0001).fit(X_train, y_train)
 
     ### Plot GP ###
     gp_mean, gp_std = gpr.predict(X, return_std=True)

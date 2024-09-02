@@ -517,7 +517,9 @@ class GaussianProcessRegressor(MultiOutputMixin, RegressorMixin, BaseEstimator):
         rng = check_random_state(random_state)
 
         y_mean, y_cov = self.predict(X, return_cov=True)
-        if y_mean.ndim == 1:
+        if y_mean.ndim == 0:
+            y_samples = rng.multivariate_normal(np.array([0]), y_cov, n_samples).T
+        elif y_mean.ndim == 1:
             y_samples = rng.multivariate_normal(y_mean, y_cov, n_samples).T
         else:
             y_samples = [
