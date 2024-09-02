@@ -7,10 +7,8 @@ Merge Request
 --------
 This is a contribution adding T-Processes (TP)s to the Machine Learning Library
 `Scikit leran <https://scikit-learn.org/stable/>`_. A request has been made to merge
-`main-tprocess <https://github.com/conradstevens/scikit-learn/tree/main-to-merge>`_ into scikit-learn's
-`main <https://github.com/scikit-learn/scikit-learn>`_ branch.
-
-The changes and tests can found in: `/scikit-learn/sklearn/gaussian_process/ <https://github.com/conradstevens/scikit-learn/tree/main-to-merge/sklearn/gaussian_process>`_
+`main-tprocess <https://github.com/conradstevens/scikit-learn/tree/main-tprocess>`_ into scikit-learn's
+`main <https://github.com/scikit-learn/scikit-learn>`_ branch. The changes and tests can found in: `/scikit-learn/sklearn/gaussian_process/ <https://github.com/conradstevens/scikit-learn/tree/main-tprocess/sklearn/gaussian_process>`_
 
 T Processes
 --------
