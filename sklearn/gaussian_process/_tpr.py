@@ -231,6 +231,10 @@ class TProcessRegressor(GaussianProcessRegressor):
         )
 
         super().fit(X, y)
+        self.log_marginal_likelihood_value_ = self.log_marginal_likelihood(
+            self.kernel_.theta, clone_kernel=False
+        )
+
         return self
 
     def predict(
@@ -391,6 +395,10 @@ class TProcessRegressor(GaussianProcessRegressor):
             using covariance K and training data
         """
         # Log-likelihood function can be found in [TW2018]
+        ### Change to shape of kernel Parameter ###
+        L = L * ((self.v0 - 2) / self.v0) ** 0.5
+        alpha = alpha * self.v0 / (self.v0 - 2)
+
         self.m_dis = np.einsum("ik,ik->k", y_train, alpha)
         log_likelihood_dims = self.log_likelihood_dims_const
         log_likelihood_dims -= self.c_fit1 * np.log(1 + self.m_dis / self.v0)
@@ -420,6 +428,11 @@ class TProcessRegressor(GaussianProcessRegressor):
         # Derivative of the Log-likelihood function can be found in [TW2018]
         # Optimization is based of [RW2006] as was done in
         # (._gpr.GaussianProcessRegressor)
+        ### Change to shape of kernel Parameter ###
+        L = L * ((self.v0 - 2) / self.v0) ** 0.5
+        alpha = alpha * self.v0 / (self.v0 - 2)
+        K_gradient = K_gradient * (self.v0 - 2) / self.v0
+
         inner_term = np.einsum("ik,jk->ijk", alpha, alpha)
         inner_term = self.v / (self.v0 + self.m_dis) * inner_term
         # compute K^-1 of shape (n_samples, n_samples)

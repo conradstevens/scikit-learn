@@ -41,7 +41,8 @@ def ground_truth_func(X, add_noise=False):
     if add_noise:
         rng = np.random.RandomState(1)
         target += rng.normal(0, 0.3, size=target.shape)
-    return target.squeeze()
+    return target.reshape(-1, 1)
+    # return target.squeeze()
 
 
 def plot_sin_comparison():
@@ -70,31 +71,31 @@ def plot_sin_comparison():
     gpr = GaussianProcessRegressor(kernel=kernel, alpha=0.0001).fit(X_train, y_train)
     tpr = TProcessRegressor(kernel=kernel, v=3, alpha=0.0001).fit(X_train, y_train)
 
-    ### Plot GP ###
-    gp_mean, gp_std = gpr.predict(X, return_std=True)
-    confs = vec_norm_conf_gp(gp_std)
-    topConf = gp_mean + confs
-    botConf = gp_mean - confs
-
-    plt.xlabel("X")
-    _ = plt.ylabel("y")
-
-    plt.fill_between(np.reshape(X, -1), botConf, topConf, color="blue", alpha=0.1)
-    plt.plot(X, y, label="Ground Truth", color="red", linewidth=1.2)
-    plt.plot(X, gp_mean, label="GP", color="b", linewidth=1.2)
-    plt.scatter(
-        x=X_train[:, 0],
-        y=y_train,
-        color="b",
-        alpha=1,
-        marker="x",
-        s=20,
-        label="Observations",
-    )
-
-    plt.legend()
-    plt.ylim(-3, 3)
-    plt.show()
+    # ### Plot GP ###
+    # gp_mean, gp_std = gpr.predict(X, return_std=True)
+    # confs = vec_norm_conf_gp(gp_std)
+    # topConf = gp_mean + confs
+    # botConf = gp_mean - confs
+    #
+    # plt.xlabel("X")
+    # _ = plt.ylabel("y")
+    #
+    # plt.fill_between(np.reshape(X, -1), botConf, topConf, color="blue", alpha=0.1)
+    # plt.plot(X, y, label="Ground Truth", color="red", linewidth=1.2)
+    # plt.plot(X, gp_mean, label="GP", color="b", linewidth=1.2)
+    # plt.scatter(
+    #     x=X_train[:, 0],
+    #     y=y_train,
+    #     color="b",
+    #     alpha=1,
+    #     marker="x",
+    #     s=20,
+    #     label="Observations",
+    # )
+    #
+    # plt.legend()
+    # plt.ylim(-3, 3)
+    # plt.show()
 
     ### Plot TP ###
     tp_mean, tp_std = tpr.predict(X, return_std=True)
@@ -157,12 +158,16 @@ def plot_rbf_samples():
         else:
             plt.plot(x_smooth, y_smooth, color="b", linewidth=1.2, alpha=0.3)
 
+    plt.xlabel("T")
+    plt.ylabel("X")
     plt.ylim(-7, 7)
     plt.legend()
+    # plt.savefig("/Users/conradstevens/GP_Samples.jpg", dpi=300)
+    plt.figure(figsize=(6, 5))
     plt.show()
 
     ### TPs ###
-    tp = TProcessRegressor(kernel=kernel, alpha=0.0001)
+    tp = TProcessRegressor(kernel=kernel, alpha=0.0001, v=5)
 
     tp_mean, tp_std = gp.predict(X, return_std=True)
     confs = vec_norm_conf_gp(tp_std)
@@ -191,11 +196,99 @@ def plot_rbf_samples():
         else:
             plt.plot(x_smooth, y_smooth, color="b", linewidth=1.2, alpha=0.3)
 
+    plt.xlabel("T")
+    plt.ylabel("X")
     plt.ylim(-7, 7)
     plt.legend()
+    # plt.savefig("/Users/conradstevens/TP_Samples.jpg", dpi=300)
+    plt.figure(figsize=(6, 5))
     plt.show()
 
 
+def plot_trian_tps():
+    """Plot GP and TP comparison"""
+    c, l, p, l2 = 1, 2, 6, 8
+    kernel = (
+        ConstantKernel(constant_value=c, constant_value_bounds=(0.1, 20))
+        * RBF(length_scale=l2, length_scale_bounds=(0.1, 20))
+        * ExpSineSquared(
+            length_scale=l,
+            periodicity=p,
+            length_scale_bounds=(0.1, 20),
+            periodicity_bounds=(0.1, 20),
+        )
+    )
+
+    for n in range(1, 41):
+        X = np.linspace(-30, 30, num=500).reshape(-1, 1)
+        y = ground_truth_func(X, add_noise=False)
+
+        X_train = np.linspace(-10, 10, num=n) + 0.1 * np.array(
+            [norm.rvs() for _ in range(n)]
+        )
+
+        X_train = X_train.reshape(-1, 1)
+        y_train = ground_truth_func(X_train, add_noise=False)
+
+        gpr = GaussianProcessRegressor(kernel=kernel, alpha=0.0001).fit(
+            X_train, y_train
+        )
+        tpr = TProcessRegressor(kernel=kernel, v=3, alpha=0.0001).fit(X_train, y_train)
+
+        # ### Plot GP ###
+        # gp_mean, gp_std = gpr.predict(X, return_std=True)
+        # confs = vec_norm_conf_gp(gp_std)
+        # topConf = gp_mean + confs
+        # botConf = gp_mean - confs
+        #
+        # plt.xlabel("X")
+        # _ = plt.ylabel("y")
+        #
+        # plt.fill_between(np.reshape(X, -1), botConf, topConf, color="blue", alpha=0.1)
+        # plt.plot(X, y, label="Ground Truth", color="red", linewidth=1.2)
+        # plt.plot(X, gp_mean, label="GP", color="b", linewidth=1.2)
+        # plt.scatter(
+        #     x=X_train[:, 0],
+        #     y=y_train,
+        #     color="b",
+        #     alpha=1,
+        #     marker="x",
+        #     s=20,
+        #     label="Observations",
+        # )
+        #
+        # plt.legend()
+        # plt.ylim(-3, 3)
+        # plt.show()
+
+        ### Plot TP ###
+        tp_mean, tp_std = tpr.predict(X, return_std=True)
+        confs = vec_norm_conf_tp(tp_std, tpr.v)
+        topConf = tp_mean + confs
+        botConf = tp_mean - confs
+
+        plt.xlabel("X")
+        _ = plt.ylabel("y")
+
+        plt.fill_between(np.reshape(X, -1), botConf, topConf, color="blue", alpha=0.1)
+        plt.plot(X, y, label="Ground Truth", color="red", linewidth=1.2)
+        plt.plot(X, tp_mean, label="TP", color="b", linewidth=1.2)
+        plt.scatter(
+            x=X_train[:, 0],
+            y=y_train,
+            color="b",
+            alpha=1,
+            marker="x",
+            s=20,
+            label="Observations",
+        )
+
+        plt.legend()
+        plt.ylim(-3, 3)
+        plt.show()
+
+
 if __name__ == "__main__":
-    plot_sin_comparison()
-    plot_rbf_samples()
+    # plot_sin_comparison()
+    # plot_rbf_samples()
+    plot_trian_tps()
