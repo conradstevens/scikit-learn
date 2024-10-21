@@ -196,6 +196,7 @@ class TProcessRegressor(GaussianProcessRegressor):
             random_state=random_state,
         )
         self.m_dis = 0  # Mahalanobis Distance
+        self.shape_m_dis = 0  # Mahalanobis Distance
         self.v0 = v  # Starting degrees of freedom
         self.v = self.v0
         self.n = 0
@@ -397,11 +398,11 @@ class TProcessRegressor(GaussianProcessRegressor):
         # Log-likelihood function can be found in [TW2018]
         ### Change to shape of kernel Parameter ###
         L = L * ((self.v0 - 2) / self.v0) ** 0.5
-        alpha = alpha * self.v0 / (self.v0 - 2)
 
         self.m_dis = np.einsum("ik,ik->k", y_train, alpha)
+        self.shape_m_dism_dis = self.m_dis * self.v0 / (self.v0 - 2)
         log_likelihood_dims = self.log_likelihood_dims_const
-        log_likelihood_dims -= self.c_fit1 * np.log(1 + self.m_dis / self.v0)
+        log_likelihood_dims -= self.c_fit1 * np.log(1 + self.shape_m_dism_dis / self.v0)
         log_likelihood_dims -= np.log(np.diag(L)).sum()
         log_likelihood = log_likelihood_dims.sum(axis=-1)
         return log_likelihood
@@ -434,7 +435,7 @@ class TProcessRegressor(GaussianProcessRegressor):
         K_gradient = K_gradient * (self.v0 - 2) / self.v0
 
         inner_term = np.einsum("ik,jk->ijk", alpha, alpha)
-        inner_term = self.v / (self.v0 + self.m_dis) * inner_term
+        inner_term = self.v / (self.v0 + self.shape_m_dism_dis) * inner_term
         # compute K^-1 of shape (n_samples, n_samples)
         K_inv = cho_solve(
             (L, GPR_CHOLESKY_LOWER), np.eye(K.shape[0]), check_finite=False
