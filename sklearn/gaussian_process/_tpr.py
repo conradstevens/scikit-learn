@@ -152,10 +152,13 @@ class TProcessRegressor(GaussianProcessRegressor):
        "Upgrading from Gaussian Processes to Student's-T Processes"
         arxiv > stat > arXiv:1801.06147 <https://arxiv.org/abs/1801.06147>`_
 
-
     .. [RW2006] `Carl E. Rasmussen and Christopher K.I. Williams,
        "Gaussian Processes for Machine Learning",
        MIT Press 2006 <https://www.gaussianprocess.org/gpml/chapters/RW.pdf>`_
+
+    .. [C2024] `Stevens Conrad
+       "Towards Analytic Informative Path Planning",
+       The University of Sydney Library <https://hdl.handle.net/2123/33299>`
 
     Examples
     --------
@@ -196,7 +199,7 @@ class TProcessRegressor(GaussianProcessRegressor):
             random_state=random_state,
         )
         self.m_dis = 0  # Mahalanobis Distance
-        self.shape_m_dis = 0  # Mahalanobis Distance
+        self.shape_m_dis = 0  # Mahalanobis Distance t shape matrix
         self.v0 = v  # Starting degrees of freedom
         self.v = self.v0
         self.n = 0
@@ -427,8 +430,8 @@ class TProcessRegressor(GaussianProcessRegressor):
             Log-marginal likelihood gradient with respect to theta
         """
         # Derivative of the Log-likelihood function can be found in [TW2018]
-        # Optimization is based of [RW2006] as was done in
-        # (._gpr.GaussianProcessRegressor)
+        # Optimization is based of [C2024] building off algorithms from
+        # [RW2006] used for Gaussian Processes (._gpr.GaussianProcessRegressor)
         ### Change to shape of kernel Parameter ###
         L = L * ((self.v0 - 2) / self.v0) ** 0.5
         alpha = alpha * self.v0 / (self.v0 - 2)
