@@ -33,7 +33,7 @@ from ..utils._param_validation import (
     StrOptions,
     validate_params,
 )
-from ..utils.validation import check_memory
+from ..utils.validation import check_memory, validate_data
 
 
 class OPTICS(ClusterMixin, BaseEstimator):
@@ -100,7 +100,7 @@ class OPTICS(ClusterMixin, BaseEstimator):
         metrics.
 
         .. note::
-           `'kulsinski'` is deprecated from SciPy 1.9 and will removed in SciPy 1.11.
+           `'kulsinski'` is deprecated from SciPy 1.9 and will be removed in SciPy 1.11.
 
     p : float, default=2
         Parameter for the Minkowski metric from
@@ -335,7 +335,7 @@ class OPTICS(ClusterMixin, BaseEstimator):
             )
             warnings.warn(msg, DataConversionWarning)
 
-        X = self._validate_data(X, dtype=dtype, accept_sparse="csr")
+        X = validate_data(self, X, dtype=dtype, accept_sparse="csr")
         if self.metric == "precomputed" and issparse(X):
             X = X.copy()  # copy to avoid in-place modification
             with warnings.catch_warnings():
