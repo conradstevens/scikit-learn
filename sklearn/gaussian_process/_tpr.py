@@ -156,9 +156,9 @@ class TProcessRegressor(GaussianProcessRegressor):
        "Gaussian Processes for Machine Learning",
        MIT Press 2006 <https://www.gaussianprocess.org/gpml/chapters/RW.pdf>`_
 
-    .. [C2024] `Stevens Conrad
+    .. [S2024] `Stevens Conrad
        "Towards Analytic Informative Path Planning",
-       The University of Sydney Library <https://hdl.handle.net/2123/33299>`
+       The University of Sydney Library <https://hdl.handle.net/2123/33299>`_
 
     Examples
     --------
@@ -430,7 +430,7 @@ class TProcessRegressor(GaussianProcessRegressor):
             Log-marginal likelihood gradient with respect to theta
         """
         # Derivative of the Log-likelihood function can be found in [TW2018]
-        # Optimization is based of [C2024] building off algorithms from
+        # Optimization is based of [S2024] building off algorithms from
         # [RW2006] used for Gaussian Processes (._gpr.GaussianProcessRegressor)
         ### Change to shape of kernel Parameter ###
         L = L * ((self.v0 - 2) / self.v0) ** 0.5
