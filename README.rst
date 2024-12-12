@@ -190,20 +190,16 @@ To compute the log-likelihood and its derivative, first consider:
 
 .. math::
 
-
-   \begin{align}
    &\text{Let } K:= K_{nn} + \Sigma_z \\
    &\text{Let } Y:= Z_n - \phi(T_n) \\
    &\text{Let } L := \text{Cholesky}(K) \\
    &\text{Let } l_{ii} := \text{the }i^{th} \text{ diagonal of $L$} \\
    &\text{Let } \alpha := L^T\backslash(L\backslash Y) \\
            &\;\;\;\;\;\;\;\;\;\;= K^{-1}Y
-   \end{align}
 
 Where :math:`Z_n` are the observed points. Then:
 
 .. math::
-
 
        \begin{align}
            \ln(p(Z_n)) &= -\frac{1}{2} Y^TK^{-1}Y - \frac{1}{2}\ln(|K|) - \frac{n}{2}\ln(2\pi)  \\
@@ -214,7 +210,6 @@ Where :math:`Z_n` are the observed points. Then:
 and
 
 .. math::
-
 
    \begin{align}
            \frac{\partial}{\partial \theta_1}\ln(p(Z_n)) &= \frac{1}{2}Y^TK^{-1} \frac{\partial K}{\partial \theta_1} K^{-1} Y - \frac{1}{2}\text{tr}(K^{-1} \frac{\partial K}{\partial \theta_1})\\
@@ -309,7 +304,6 @@ derivative, first consider:
 
 .. math::
 
-
    \begin{align}
    &\text{Let } \Psi_{nn} := \frac{v_0-2}{v_0}(K_{nn} + \Sigma_z) \\
    &\text{Let } Y:= Z_n - \phi(T_n) \\
@@ -323,7 +317,6 @@ Then:
 
 .. math::
 
-
    \begin{align}
    \ln(p(Z_n)) &= \Gamma(\frac{v_0 + n}{2}) - \Gamma(\frac{v_0}{2}) - \frac{n}{2}\ln(v_0\pi) - \frac{1}{2} \ln(|\Psi_{nn}|) - \frac{v_0 + n}{2} \ln(1 + \frac{(\phi(T_n) - \check{Z}_n)^T \Psi_{nn}^{-1} (\phi(T_n) - \check{Z}_n)}{v_0}) \\
    &= \Gamma(\frac{v_0 + n}{2}) - \Gamma(\frac{v_0}{2}) - \frac{n}{2}\ln(v_0\pi) - \frac{1}{2} \ln(|K|) - \frac{v_0 + n}{2} \ln(1 + \frac{Y^T K^{-1} Y}{v_0}) \\
@@ -335,7 +328,6 @@ Then:
 and
 
 .. math::
-
 
    \begin{align}
    \frac{\partial}{\partial \theta_1}\ln\bigl(p(Z)\bigl) &= \frac{\partial}{\partial \theta_1} \Bigl((-\frac{1}{2}\ln(|\Psi_{nn}|)\Bigl) + \frac{\partial}{\partial \theta_1} \Bigl( - \frac{v_0 + n}{2}\ln \bigl( 1+\frac{(\phi(T_n) - \check{Z}_n)^T \Psi_{nn}^{-1} (\phi(T_n) - \check{Z}_n)}{v_0}\bigl) \Bigl) \\
