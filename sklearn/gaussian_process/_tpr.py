@@ -6,7 +6,7 @@
 
 import numpy as np
 from scipy.linalg import cho_solve
-from scipy.special import gamma as gam
+from scipy.special import gamma
 from scipy.stats import multivariate_t
 
 from ..base import _fit_context
@@ -198,17 +198,7 @@ class TProcessRegressor(GaussianProcessRegressor):
             n_targets=n_targets,
             random_state=random_state,
         )
-        self.m_dis = 0  # Mahalanobis Distance
-        self.shape_m_dis = 0  # Mahalanobis Distance t shape matrix
-        self.v0 = v  # Starting degrees of freedom
-        self.v = self.v0
-        self.n = 0
-        self.log_likelihood_dims_const = -1
-
-        ### Constants that are used throughout functions ###
-        self.c1 = gam(self.v0 / 2)
-        self.c2 = np.log(self.v0 * np.pi)
-        self.c_fit1 = self.v / 2
+        self.v = v
 
     @_fit_context(prefer_skip_nested_validation=True)
     def fit(self, X, y):
@@ -225,20 +215,9 @@ class TProcessRegressor(GaussianProcessRegressor):
         Returns
         -------
         self : object
-            GaussianProcessRegressor class instance.
+            TProcessRegressor class instance.
         """
-        self.n = y.shape[0]
-        self.v = self.v0 + self.n
-        self.c_fit1 = self.v / 2
-        self.log_likelihood_dims_const = (
-            gam(self.c_fit1) - self.c1 - self.n / 2 * self.c2
-        )
-
         super().fit(X, y)
-        self.log_marginal_likelihood_value_ = self.log_marginal_likelihood(
-            self.kernel_.theta, clone_kernel=False
-        )
-
         return self
 
     def predict(
@@ -302,6 +281,9 @@ class TProcessRegressor(GaussianProcessRegressor):
                 + "return_tShapeMatrix can be requested."
             )
 
+        self.n = getattr(self, "n", 0)
+        self.v_n = self.v + self.n
+
         ### Spread may be either std or cov ###
         if not any([return_std, return_cov, return_tShape, return_tShapeMatrix]):
             return super().predict(X, return_std, return_cov)
@@ -312,11 +294,11 @@ class TProcessRegressor(GaussianProcessRegressor):
 
         ### Adjust depending on desired posterior ###
         if self.n > 0 and (return_tShape or return_tShapeMatrix):
-            scailing_factor = (self.m_dis + self.v0 - 2) / self.v
+            scailing_factor = (self.m_dis + self.v - 2) / self.v_n
         elif self.n > 0 and (return_std or return_cov):
-            scailing_factor = (self.m_dis + self.v0 - 2) / (self.v - 2)
+            scailing_factor = (self.m_dis + self.v - 2) / (self.v_n - 2)
         elif self.n == 0 and (return_tShape or return_tShapeMatrix):
-            scailing_factor = (self.v - 2) / self.v
+            scailing_factor = (self.v_n - 2) / self.v_n
         else:
             scailing_factor = 1
 
@@ -356,20 +338,20 @@ class TProcessRegressor(GaussianProcessRegressor):
         y_mean, y_tShapeMatrix = self.predict(X, return_tShapeMatrix=True)
         if y_mean.ndim == 0:
             y_samples = (
-                multivariate_t(np.array([0]), y_tShapeMatrix, self.v, seed=rng)
+                multivariate_t(np.array([0]), y_tShapeMatrix, self.v_n, seed=rng)
                 .rvs(n_samples)
                 .T
             )
         elif y_mean.ndim == 1:
             y_samples = (
-                multivariate_t(y_mean, y_tShapeMatrix, self.v, seed=rng)
+                multivariate_t(y_mean, y_tShapeMatrix, self.v_n, seed=rng)
                 .rvs(n_samples)
                 .T
             )
         else:
             y_samples = [
                 multivariate_t(
-                    y_mean[:, target], y_tShapeMatrix[..., target], self.v, seed=rng
+                    y_mean[:, target], y_tShapeMatrix[..., target], self.v_n, seed=rng
                 )
                 .rvs(n_samples)
                 .T[:, np.newaxis]
@@ -377,6 +359,29 @@ class TProcessRegressor(GaussianProcessRegressor):
             ]
             y_samples = np.hstack(y_samples)
         return y_samples
+
+    @_fit_context(prefer_skip_nested_validation=True)
+    def _preliminary_data_check(self, X, y):
+        """Checks that the data the TP is trianing on is valid.
+        Then updates reused internal calculated values.
+
+        Parameters
+        ----------
+        X : array-like of shape (n_samples, n_features) or list of object
+            Feature vectors or other representations of training data.
+
+        y : array-like of shape (n_samples,) or (n_samples, n_targets)
+            Target values.
+        """
+        super()._preliminary_data_check(X, y)
+
+        self.n = y.shape[0]
+        self.v_n = self.v + self.n
+        self.log_likelihood_dims_const = (
+            gamma(self.v_n / 2)
+            - gamma(self.v / 2)
+            - self.n / 2 * np.log(self.v * np.pi)
+        )
 
     def _log_likelihood_calc(self, y_train, alpha, L, K):
         """Returns the log-likelihood given L and the training points.
@@ -400,12 +405,12 @@ class TProcessRegressor(GaussianProcessRegressor):
         """
         # Log-likelihood function can be found in [TW2018]
         ### Change to shape of kernel Parameter ###
-        L = L * ((self.v0 - 2) / self.v0) ** 0.5
+        L = L * ((self.v - 2) / self.v) ** 0.5
 
         self.m_dis = np.einsum("ik,ik->k", y_train, alpha)
-        self.shape_m_dism_dis = self.m_dis * self.v0 / (self.v0 - 2)
+        self.shape_m_dism_dis = self.m_dis * self.v / (self.v - 2)
         log_likelihood_dims = self.log_likelihood_dims_const
-        log_likelihood_dims -= self.c_fit1 * np.log(1 + self.shape_m_dism_dis / self.v0)
+        log_likelihood_dims -= self.v_n / 2 * np.log(1 + self.shape_m_dism_dis / self.v)
         log_likelihood_dims -= np.log(np.diag(L)).sum()
         log_likelihood = log_likelihood_dims.sum(axis=-1)
         return log_likelihood
@@ -433,12 +438,12 @@ class TProcessRegressor(GaussianProcessRegressor):
         # Optimization is based of [S2024] building off algorithms from
         # [RW2006] used for Gaussian Processes (._gpr.GaussianProcessRegressor)
         ### Change to shape of kernel Parameter ###
-        L = L * ((self.v0 - 2) / self.v0) ** 0.5
-        alpha = alpha * self.v0 / (self.v0 - 2)
-        K_gradient = K_gradient * (self.v0 - 2) / self.v0
+        L = L * ((self.v - 2) / self.v) ** 0.5
+        alpha = alpha * self.v / (self.v - 2)
+        K_gradient = K_gradient * (self.v - 2) / self.v
 
         inner_term = np.einsum("ik,jk->ijk", alpha, alpha)
-        inner_term = self.v / (self.v0 + self.shape_m_dism_dis) * inner_term
+        inner_term = self.v_n / (self.v + self.shape_m_dism_dis) * inner_term
         # compute K^-1 of shape (n_samples, n_samples)
         K_inv = cho_solve(
             (L, GPR_CHOLESKY_LOWER), np.eye(K.shape[0]), check_finite=False

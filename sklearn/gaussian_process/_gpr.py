@@ -218,7 +218,6 @@ class GaussianProcessRegressor(MultiOutputMixin, RegressorMixin, BaseEstimator):
         self.n_targets = n_targets
         self.random_state = random_state
 
-    @_fit_context(prefer_skip_nested_validation=True)
     def fit(self, X, y):
         """Fit Gaussian process regression model.
 
@@ -235,35 +234,7 @@ class GaussianProcessRegressor(MultiOutputMixin, RegressorMixin, BaseEstimator):
         self : object
             GaussianProcessRegressor class instance.
         """
-        if self.kernel is None:  # Use an RBF kernel as default
-            self.kernel_ = C(1.0, constant_value_bounds="fixed") * RBF(
-                1.0, length_scale_bounds="fixed"
-            )
-        else:
-            self.kernel_ = clone(self.kernel)
-
-        self._rng = check_random_state(self.random_state)
-
-        if self.kernel_.requires_vector_input:
-            dtype, ensure_2d = "numeric", True
-        else:
-            dtype, ensure_2d = None, False
-        X, y = validate_data(
-            self,
-            X,
-            y,
-            multi_output=True,
-            y_numeric=True,
-            ensure_2d=ensure_2d,
-            dtype=dtype,
-        )
-
-        n_targets_seen = y.shape[1] if y.ndim > 1 else 1
-        if self.n_targets is not None and n_targets_seen != self.n_targets:
-            raise ValueError(
-                "The number of targets seen in `y` is different from the parameter "
-                f"`n_targets`. Got {n_targets_seen} != {self.n_targets}."
-            )
+        self._preliminary_data_check(X, y)
 
         # Normalize target value
         if self.normalize_y:
@@ -447,13 +418,13 @@ class GaussianProcessRegressor(MultiOutputMixin, RegressorMixin, BaseEstimator):
             if y_mean.ndim > 1 and y_mean.shape[1] == 1:
                 y_mean = np.squeeze(y_mean, axis=1)
 
-            # Alg 2.1, page 19, line 5 -> v = L \ K(X_test, X_train)^T
+            # Alg 2.1, page 19, line 5 -> v_n = L \ K(X_test, X_train)^T
             V = solve_triangular(
                 self.L_, K_trans.T, lower=GPR_CHOLESKY_LOWER, check_finite=False
             )
 
             if return_cov:
-                # Alg 2.1, page 19, line 6 -> K(X_test, X_test) - v^T. v
+                # Alg 2.1, page 19, line 6 -> K(X_test, X_test) - v_n^T. v_n
                 y_cov = self.kernel_(X) - V.T @ V
 
                 # undo normalisation
@@ -606,6 +577,48 @@ class GaussianProcessRegressor(MultiOutputMixin, RegressorMixin, BaseEstimator):
             return log_likelihood, log_likelihood_gradient
         else:
             return log_likelihood
+
+    @_fit_context(prefer_skip_nested_validation=True)
+    def _preliminary_data_check(self, X, y):
+        """Checks that the data the GP is trianing on is valid
+
+        Parameters
+        ----------
+        X : array-like of shape (n_samples, n_features) or list of object
+            Feature vectors or other representations of training data.
+
+        y : array-like of shape (n_samples,) or (n_samples, n_targets)
+            Target values.
+        """
+        if self.kernel is None:  # Use an RBF kernel as default
+            self.kernel_ = C(1.0, constant_value_bounds="fixed") * RBF(
+                1.0, length_scale_bounds="fixed"
+            )
+        else:
+            self.kernel_ = clone(self.kernel)
+
+        self._rng = check_random_state(self.random_state)
+
+        if self.kernel_.requires_vector_input:
+            dtype, ensure_2d = "numeric", True
+        else:
+            dtype, ensure_2d = None, False
+        X, y = validate_data(
+            self,
+            X,
+            y,
+            multi_output=True,
+            y_numeric=True,
+            ensure_2d=ensure_2d,
+            dtype=dtype,
+        )
+
+        n_targets_seen = y.shape[1] if y.ndim > 1 else 1
+        if self.n_targets is not None and n_targets_seen != self.n_targets:
+            raise ValueError(
+                "The number of targets seen in `y` is different from the parameter "
+                f"`n_targets`. Got {n_targets_seen} != {self.n_targets}."
+            )
 
     def _log_likelihood_calc(slef, y_train, alpha, L, K):
         """Returns the log-likelihood of the multivariate Gaussian distribution.
