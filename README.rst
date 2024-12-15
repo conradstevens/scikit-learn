@@ -10,6 +10,10 @@ behavioural differences.
 This is not meant to be a coprehensive overview of GPs and TPs, for more
 background information see [RW2006], [SW2014], [TW2018] and [S2024].
 
+The jupyter note book used to generate this readme is `here <https://github.com/conradstevens/scikit-learn/blob/dev-tprocess/sklearn/gaussian_process/media/tp_demo.ipynb>`__.
+
+The merge request into scikit learn is `here <https://github.com/scikit-learn/scikit-learn/pull/30482>`__. 
+
 Scikit Learn Gaussian Processes Interface
 -----------------------------------------
 
