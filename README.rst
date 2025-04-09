@@ -329,15 +329,15 @@ $$ \\text{Let } \\alpha := \\Psi_{nn}^T\\backslash(\\Psi_{nn}\\backslash Y) = \\
 
 Then:
 
-$$ \\ln(p(Z_n)) = \\Gamma(\\frac{v_0 + n}{2}) - \\Gamma(\\frac{v_0}{2}) - \\frac{n}{2}\\ln(v_0\\pi) - \\frac{1}{2} \\ln(\\|\\Psi_{nn}\\|) - \\frac{v_0 + n}{2} \\ln(1 + \\frac{(\\phi(T_n) - \\check{Z}_n)^T \\Psi_{nn}^{-1} (\\phi(T_n) - \\check{Z}_n)}{v_0}) $$
+$$ \\ln(p(Z_n)) = \\ln(\\Gamma(\\frac{v_0 + n}{2})) - \\ln(\\Gamma(\\frac{v_0}{2})) - \\frac{n}{2}\\ln(v_0\\pi) - \\frac{1}{2} \\ln(\\|\\Psi_{nn}\\|) - \\frac{v_0 + n}{2} \\ln(1 + \\frac{(\\phi(T_n) - \\check{Z}_n)^T \\Psi_{nn}^{-1} (\\phi(T_n) - \\check{Z}_n)}{v_0}) $$
 																		 
-$$ = \\Gamma(\\frac{v_0 + n}{2}) - \\Gamma(\\frac{v_0}{2}) - \\frac{n}{2}\\ln(v_0\\pi) - \\frac{1}{2} \\ln(\\|K\\|) - \\frac{v_0 + n}{2} \\ln(1 + \\frac{Y^T K^{-1} Y}{v_0}) $$
+$$ = \\ln(\\Gamma(\\frac{v_0 + n}{2})) - \\ln(\\Gamma(\\frac{v_0}{2})) - \\frac{n}{2}\\ln(v_0\\pi) - \\frac{1}{2} \\ln(\\|K\\|) - \\frac{v_0 + n}{2} \\ln(1 + \\frac{Y^T K^{-1} Y}{v_0}) $$
 																		 
-$$ = \\Gamma(\\frac{v_0 + n}{2}) - \\Gamma(\\frac{v_0}{2}) - \\frac{n}{2}\\ln(v_0\\pi) - \\frac{1}{2} \\ln(\\|LL^T\\|) - \\frac{v_0 + n}{2} \\ln(1 + \\frac{Y^T \\alpha}{v_0}) $$
+$$ = \\ln(\\Gamma(\\frac{v_0 + n}{2})) - \\ln(\\Gamma(\\frac{v_0}{2})) - \\frac{n}{2}\\ln(v_0\\pi) - \\frac{1}{2} \\ln(\\|LL^T\\|) - \\frac{v_0 + n}{2} \\ln(1 + \\frac{Y^T \\alpha}{v_0}) $$
 																		 
-$$ = \\Gamma(\\frac{v_0 + n}{2}) - \\Gamma(\\frac{v_0}{2}) - \\frac{n}{2}\\ln(v_0\\pi) - \\sum_{i=1}^n\\bigl( \\ln(l_{ii}) \\bigr) - \\frac{v_0 + n}{2} \\ln(1 + \\frac{Y^T \\alpha}{v_0}) $$
+$$ = \\ln(\\Gamma(\\frac{v_0 + n}{2})) - \\ln(\\Gamma(\\frac{v_0}{2})) - \\frac{n}{2}\\ln(v_0\\pi) - \\sum_{i=1}^n\\bigl( \\ln(l_{ii}) \\bigr) - \\frac{v_0 + n}{2} \\ln(1 + \\frac{Y^T \\alpha}{v_0}) $$
 																		 
-$$ = \\Gamma(\\frac{v_0 + n}{2}) - \\Gamma(\\frac{v_0}{2}) - \\frac{n}{2}\\ln(v_0\\pi) - \\sum_{i=1}^n\\bigl( \\ln(l_{ii}) \\bigr) - \\frac{v_0 + n}{2} \\ln(1 + \\frac{(\\phi(T_n) - \\check{Z}_n)^T \\alpha}{v_0}) $$
+$$ = \\ln(\\Gamma(\\frac{v_0 + n}{2})) - \\ln(\\Gamma(\\frac{v_0}{2})) - \\frac{n}{2}\\ln(v_0\\pi) - \\sum_{i=1}^n\\bigl( \\ln(l_{ii}) \\bigr) - \\frac{v_0 + n}{2} \\ln(1 + \\frac{(\\phi(T_n) - \\check{Z}_n)^T \\alpha}{v_0}) $$
 
 and
 
